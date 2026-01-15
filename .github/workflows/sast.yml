@@ -23,6 +23,6 @@ jobs:
             -Dsonar.projectKey=SAST-DEMO \
             -Dsonar.sources=. \
             -Dsonar.host.url=http://host.docker.internal:9000 \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.login=sqp_c08e6cd7a6fc3f9df8002b735e34bfd5ab6af866 \
             -Dsonar.python.version=3.10
 
