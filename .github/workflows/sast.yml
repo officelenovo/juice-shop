@@ -1,7 +1,8 @@
-name: SAST Pipeline
+name: SAST - SonarQube
 
 on:
   push:
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -9,17 +10,19 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Run Semgrep SAST
-      uses: semgrep/semgrep-action@v1
-      with:
-        config: p/owasp-top-ten
-
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@v2
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: http://localhost:9000
+      - name: Run SonarQube Scan
+        run: |
+          docker run --rm \
+            -v "${PWD}:/usr/src" \
+            sonarsource/sonar-scanner-cli \
+            -Dsonar.projectKey=SAST-DEMO \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=http://host.docker.internal:9000 \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.python.version=3.10
 
