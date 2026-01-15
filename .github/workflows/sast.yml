@@ -20,9 +20,9 @@ jobs:
           docker run --rm \
             -v "${PWD}:/usr/src" \
             sonarsource/sonar-scanner-cli \
-            -Dsonar.projectKey=SAST-DEMO \
+            -Dsonar.projectKey=test \
             -Dsonar.sources=. \
             -Dsonar.host.url=http://host.docker.internal:9000 \
-            -Dsonar.login=sqp_c08e6cd7a6fc3f9df8002b735e34bfd5ab6af866 \
+            -Dsonar.login=sqp_c2a51e667aef1064724c6151fcea2acecaf0c196 \
             -Dsonar.python.version=3.10
 
