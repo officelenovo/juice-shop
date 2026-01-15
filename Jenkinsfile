@@ -1,33 +1,54 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    SONAR_HOST_URL = "http://sonarqube:9000"
-    SONAR_PROJECT_KEY = "juice-shop-sast"
-    SONAR_TOKEN = credentials('sonar-token')
-  }
-
-  stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        SONAR_HOST_URL = "http://host.docker.internal:9000"
+        SONAR_PROJECT_KEY = "juice-shop-sast"
+        SONAR_TOKEN = credentials('sonarqube-token')
     }
 
-    stage('SAST - SonarQube') {
-      steps {
-        sh '''
-          docker run --rm \
-            --network container:sonarqube \
-            -v "$PWD:/usr/src" \
-            sonarsource/sonar-scanner-cli \
-            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=${SONAR_HOST_URL} \
-            -Dsonar.login=${SONAR_TOKEN}
-        '''
-      }
+    options {
+        timestamps()
+        ansiColor('xterm')
     }
-  }
+
+    stages {
+
+        stage('Checkout Source Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('SAST - SonarQube Scan') {
+            steps {
+                sh '''
+                docker run --rm \
+                  -v "$PWD:/usr/src" \
+                  sonarsource/sonar-scanner-cli \
+                  -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                  -Dsonar.sources=. \
+                  -Dsonar.host.url=$SONAR_HOST_URL \
+                  -Dsonar.login=$SONAR_TOKEN
+                '''
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ SAST scan passed. Code quality is acceptable."
+        }
+        failure {
+            echo "❌ SAST scan failed. Fix security issues."
+        }
+    }
 }
-
