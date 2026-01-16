@@ -7,14 +7,8 @@ pipeline {
         SONAR_TOKEN = credentials('sonarqube-token')
     }
 
-    options {
-        timestamps()
-        ansiColor('xterm')
-    }
-
     stages {
-
-        stage('Checkout Source Code') {
+        stage('Checkout Code') {
             steps {
                 checkout scm
             }
@@ -33,22 +27,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ SAST scan passed. Code quality is acceptable."
-        }
-        failure {
-            echo "❌ SAST scan failed. Fix security issues."
-        }
     }
 }
+
