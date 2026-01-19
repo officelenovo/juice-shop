@@ -21,9 +21,9 @@ pipeline {
                         -v "$PWD:/usr/src" \
                         -w /usr/src \
                         sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=juice-shop-sast \
-                        -Dsonar.sources=frontend/src,backend/src \
-                        -Dsonar.exclusions=**/node_modules/**,**/dist/** \
+                        -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                        -Dsonar.sources=. \
+                        -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**,**/uploads/** \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONAR_TOKEN
                     '''
