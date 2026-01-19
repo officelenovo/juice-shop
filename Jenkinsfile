@@ -1,62 +1,22 @@
-pipeline {
-    agent {
-        docker {
-            image 'node:20-alpine'
-            args '-u root'
-        }
-    }
+stage('SAST - SonarQube Scan') {
+    steps {
+        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+            sh '''
+              pwd
+              ls -la
 
-    environment {
-        SONAR_HOST_URL = "http://host.docker.internal:9000"
-        SONAR_PROJECT_KEY = "juice-shop-sast"
-    }
-
-    stages {
-
-        stage('Checkout Code') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'npm run build || true'
-            }
-        }
-
-        stage('SAST - SonarQube Scan') {
-            environment {
-                SONAR_TOKEN = credentials('sonarqube-token')
-            }
-            steps {
-                sh '''
-                docker run --rm \
-                  --platform=linux/amd64 \
-                  -v "$PWD:/usr/src" \
-                  -w /usr/src \
-                  sonarsource/sonar-scanner-cli \
-                  -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                  -Dsonar.sources=src \
-                  -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
-                  -Dsonar.scm.provider=git \
-                  -Dsonar.sourceEncoding=UTF-8 \
-                  -Dsonar.host.url=${SONAR_HOST_URL} \
-                  -Dsonar.login=${SONAR_TOKEN}
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            echo "Pipeline completed"
+              docker run --rm \
+                -v "$PWD:/usr/src" \
+                -w /usr/src \
+                sonarsource/sonar-scanner-cli \
+                -Dsonar.projectKey=juice-shop-sast \
+                -Dsonar.sources=. \
+                -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
+                -Dsonar.branch.name=main \
+                -Dsonar.scm.provider=git \
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_TOKEN
+            '''
         }
     }
 }
