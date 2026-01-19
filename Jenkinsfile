@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:20-alpine'
+            args '-u root'
+        }
+    }
 
     environment {
         SONAR_HOST_URL = "http://host.docker.internal:9000"
@@ -16,17 +21,13 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                  npm install
-                '''
+                sh 'npm install'
             }
         }
 
         stage('Build') {
             steps {
-                sh '''
-                  npm run build || true
-                '''
+                sh 'npm run build || true'
             }
         }
 
@@ -44,9 +45,8 @@ pipeline {
                   -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                   -Dsonar.sources=src \
                   -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
-                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-                  -Dsonar.sourceEncoding=UTF-8 \
                   -Dsonar.scm.provider=git \
+                  -Dsonar.sourceEncoding=UTF-8 \
                   -Dsonar.host.url=${SONAR_HOST_URL} \
                   -Dsonar.login=${SONAR_TOKEN}
                 '''
