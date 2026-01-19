@@ -24,7 +24,6 @@ pipeline {
                         -Dsonar.projectKey=juice-shop-sast \
                         -Dsonar.sources=. \
                         -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
-                        -Dsonar.branch.name=main \
                         -Dsonar.scm.provider=git \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONAR_TOKEN
