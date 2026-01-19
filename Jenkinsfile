@@ -18,12 +18,14 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
                       docker run --rm \
-                        -v "$PWD:/usr/src" \
-                        sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
+                -v "$PWD:/usr/src" \
+                -w /usr/src \
+                sonarsource/sonar-scanner-cli \
+                -Dsonar.projectKey=juice-shop-sast \
+                -Dsonar.sources=frontend/src,backend/src \
+                -Dsonar.exclusions=**/node_modules/**,**/dist/** \
+                -Dsonar.host.url=$SONAR_HOST_URL \
+                -Dsonar.login=$SONAR_TOKEN
                     '''
                 }
             }
