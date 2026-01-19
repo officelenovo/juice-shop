@@ -4,7 +4,7 @@ pipeline {
     environment {
         SONAR_PROJECT_KEY = "juice-shop-sast"
         SONAR_HOST_URL = "http://sonarqube:9000"
-        SONAR_TOKEN = credentials('sonar-token')
+        SONAR_TOKEN = credentials('token')
     }
 
     stages {
