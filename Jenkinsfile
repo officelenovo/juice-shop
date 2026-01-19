@@ -7,28 +7,56 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
                 checkout scm
             }
         }
 
-        stage('SAST - SonarQube Scan') {
+        stage('Install Dependencies') {
             steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                      docker run --rm \
-                        -v "$PWD:/usr/src" \
-                        -w /usr/src \
-                        sonarsource/sonar-scanner-cli \
-                        -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-                        -Dsonar.sources=. \
-                        -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**,**/uploads/** \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
-                    '''
-                }
+                sh '''
+                  npm install
+                '''
             }
+        }
+
+        stage('Build') {
+            steps {
+                sh '''
+                  npm run build || true
+                '''
+            }
+        }
+
+        stage('SAST - SonarQube Scan') {
+            environment {
+                SONAR_TOKEN = credentials('sonarqube-token')
+            }
+            steps {
+                sh '''
+                docker run --rm \
+                  --platform=linux/amd64 \
+                  -v "$PWD:/usr/src" \
+                  -w /usr/src \
+                  sonarsource/sonar-scanner-cli \
+                  -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                  -Dsonar.sources=src \
+                  -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
+                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+                  -Dsonar.sourceEncoding=UTF-8 \
+                  -Dsonar.scm.provider=git \
+                  -Dsonar.host.url=${SONAR_HOST_URL} \
+                  -Dsonar.login=${SONAR_TOKEN}
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Pipeline completed"
         }
     }
 }
