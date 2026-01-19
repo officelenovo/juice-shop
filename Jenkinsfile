@@ -3,11 +3,10 @@ pipeline {
 
     environment {
         SONAR_PROJECT_KEY = "juice-shop-sast"
-        SONAR_HOST_URL = "http://sonarqube:9000"
-        SONAR_TOKEN = credentials('token')
     }
 
     stages {
+
         stage('Checkout Code') {
             steps {
                 checkout scm
@@ -17,25 +16,25 @@ pipeline {
         stage('Verify Code Exists') {
             steps {
                 sh '''
-                  echo "PWD:"
+                  echo "Workspace:"
                   pwd
-                  echo "TypeScript files:"
-                  find . -name "*.ts" | head -20
+                  echo "Sample TypeScript files:"
+                  find . -name "*.ts" | head -10
                 '''
             }
         }
 
         stage('SAST - SonarQube Scan') {
             steps {
-                sh '''
-                  docker run --rm \
-                    -v "$PWD:/usr/src" \
-                    sonarsource/sonar-scanner-cli \
-                    -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-                    -Dsonar.sources=app.ts,server.ts,frontend,lib,routes,models,config \
-                    -Dsonar.host.url=$SONAR_HOST_URL \
-                    -Dsonar.login=$SONAR_TOKEN
-                '''
+                withSonarQubeEnv('sonar') {
+                    sh '''
+                      sonar-scanner \
+                        -Dsonar.projectKey=juice-shop-sast \
+                        -Dsonar.sources=. \
+                        -Dsonar.exclusions=node_modules/**,dist/** \
+                        -Dsonar.language=ts
+                    '''
+                }
             }
         }
     }
