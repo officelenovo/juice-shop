@@ -26,7 +26,8 @@ pipeline {
                         -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
                         -Dsonar.scm.provider=git \
                         -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN
+                        -Dsonar.login=$SONAR_TOKEN \
+                        -Dsonar.branch.name=main
                     '''
                 }
             }
