@@ -32,8 +32,8 @@ pipeline {
                         -w /usr/src \
                         sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-                        -Dsonar.sources=. \
-                        -Dsonar.exclusions=**/node_modules/**,**/dist/** \
+                        -Dsonar.sources=frontend,lib,routes,models \
+                        -Dsonar.inclusions=**/*.ts,**/*.js,**/node_modules/**,**/dist/**,**/coverage/** \
                         -Dsonar.host.url=$SONAR_HOST_URL \
                         -Dsonar.login=$SONAR_TOKEN \
                         -Dsonar.scm.disabled=true
