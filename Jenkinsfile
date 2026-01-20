@@ -26,9 +26,6 @@ pipeline {
                       -Dsonar.projectKey=juice-shop-sast \
                       -Dsonar.projectBaseDir=/usr/src \
                       -Dsonar.sources=. \
-                      -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**,**/*.spec.ts \
-                      -Dsonar.javascript.file.suffixes=.js,.jsx \
-                      -Dsonar.typescript.file.suffixes=.ts,.tsx \
                       -Dsonar.host.url=http://host.docker.internal:9000 \
                       -Dsonar.login=$SONAR_TOKEN \
                       -Dsonar.scm.disabled=true
