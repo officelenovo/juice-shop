@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        SONAR_HOST_URL    = "http://host.docker.internal:9000"
+        SONAR_HOST_URL    = "http://sonarqube:9000"
         SONAR_PROJECT_KEY = "juice-shop-sast"
+        DOCKER_NETWORK    = "devsecops-net"
     }
 
     stages {
@@ -20,16 +21,16 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
                     docker run --rm \
+                      --network ${DOCKER_NETWORK} \
                       -v "$WORKSPACE:/usr/src" \
                       -w /usr/src \
                       sonarsource/sonar-scanner-cli \
-                      -Dsonar.projectKey=juice-shop-sast \
+                      -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                       -Dsonar.projectBaseDir=/usr/src \
                       -Dsonar.sources=. \
-                      -Dsonar.host.url=http://host.docker.internal:9000 \
-                      -Dsonar.login=$SONAR_TOKEN \
+                      -Dsonar.host.url=${SONAR_HOST_URL} \
+                      -Dsonar.login=${SONAR_TOKEN} \
                       -Dsonar.scm.disabled=true
-                      
                     '''
                 }
             }
@@ -38,10 +39,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ SonarQube analysis completed"
+            echo "SonarQube analysis completed successfully"
         }
         failure {
-            echo "❌ SonarQube analysis failed"
+            echo "SonarQube analysis failed"
         }
     }
 }
