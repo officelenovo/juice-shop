@@ -8,25 +8,25 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
+                sh 'ls -la'
             }
         }
 
-        stage('SonarQube SAST Scan') {
+        stage('SonarQube SAST') {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
-                    echo "Workspace content:"
-                    ls -la
-
                     docker run --rm \
                       -v "$WORKSPACE:/usr/src" \
                       -w /usr/src \
                       sonarsource/sonar-scanner-cli \
                       -Dsonar.projectKey=juice-shop-sast \
+                      -Dsonar.projectBaseDir=/usr/src \
                       -Dsonar.sources=. \
+                      -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**,**/*.spec.ts \
                       -Dsonar.host.url=http://host.docker.internal:9000 \
                       -Dsonar.login=$SONAR_TOKEN \
                       -Dsonar.scm.disabled=true
@@ -38,10 +38,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ SonarQube SAST scan completed successfully"
+            echo "✅ SonarQube analysis completed"
         }
         failure {
-            echo "❌ SonarQube SAST scan failed"
+            echo "❌ SonarQube analysis failed"
         }
     }
 }
