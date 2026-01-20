@@ -20,6 +20,7 @@ pipeline {
                     sh '''                  
                           docker run --rm \
                             -v "${PWD}:/usr/src" \
+                            -w /usr/src \
                             sonarsource/sonar-scanner-cli \
                             -Dsonar.projectKey=$SONAR_PROJECT_KEY \
                             -Dsonar.sources=. \
