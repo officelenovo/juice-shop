@@ -17,18 +17,15 @@ pipeline {
         stage('SAST - SonarQube Scan') {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                    sh '''
-                        docker run --rm \
-                          -v "$PWD:/usr/src" \
-                          -w /usr/src \
-                          sonarsource/sonar-scanner-cli \
-                          -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-                          -Dsonar.sources=. \
-                          -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
-                          -Dsonar.scm.provider=git \
-                          -Dsonar.host.url=$SONAR_HOST_URL \
-                          -Dsonar.login=$SONAR_TOKEN \
-                          -Dsonar.scm.provider=git
+                    sh '''                  
+                          docker run --rm \
+                            -v "${PWD}:/usr/src" \
+                            sonarsource/sonar-scanner-cli \
+                            -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=http://host.docker.internal:9000 \
+                            -Dsonar.login=$SONAR_TOKEN \
+                            -Dsonar.python.version=3.10
 
                     '''
                 }
