@@ -14,17 +14,19 @@ pipeline {
             }
         }
 
-        stage('SAST - SonarQube Scan') {
+        stage('SonarQube SAST Scan') {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
+                    echo "Workspace content:"
+                    ls -la
+
                     docker run --rm \
                       -v "$WORKSPACE:/usr/src" \
                       -w /usr/src \
                       sonarsource/sonar-scanner-cli \
                       -Dsonar.projectKey=juice-shop-sast \
-                      -Dsonar.sources=frontend,lib,routes,models \
-                      -Dsonar.inclusions=**/*.js,**/*.ts \
+                      -Dsonar.sources=. \
                       -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
                       -Dsonar.host.url=http://host.docker.internal:9000 \
                       -Dsonar.login=$SONAR_TOKEN \
