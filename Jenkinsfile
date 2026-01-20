@@ -27,7 +27,6 @@ pipeline {
                       sonarsource/sonar-scanner-cli \
                       -Dsonar.projectKey=juice-shop-sast \
                       -Dsonar.sources=. \
-                      -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/** \
                       -Dsonar.host.url=http://host.docker.internal:9000 \
                       -Dsonar.login=$SONAR_TOKEN \
                       -Dsonar.scm.disabled=true
